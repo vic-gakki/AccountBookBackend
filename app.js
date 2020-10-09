@@ -1,40 +1,18 @@
-var app = require('koa')()
-  , logger = require('koa-logger')
-  , json = require('koa-json')
-  , views = require('koa-views')
-  , onerror = require('koa-onerror');
-
-var index = require('./routes/index');
-var users = require('./routes/users');
-
-// error handler
-onerror(app);
-
-// global middlewares
-app.use(views('views', {
-  root: __dirname + '/views',
-  default: 'jade'
-}));
-app.use(require('koa-bodyparser')());
-app.use(json());
-app.use(logger());
-
-app.use(function *(next){
-  var start = new Date;
-  yield next;
-  var ms = new Date - start;
-  console.log('%s %s - %s', this.method, this.url, ms);
-});
-
-app.use(require('koa-static')(__dirname + '/public'));
-
-// routes definition
-app.use(index.routes(), index.allowedMethods());
-app.use(users.routes(), users.allowedMethods());
-
-// error-handling
-app.on('error', (err, ctx) => {
-  console.error('server error', err, ctx)
-});
+const koa = require('koa')
+const cors = require('koa-cors')
+const parser = require('koa-bodyparser')
+const json = require('koa-json')
+const {InitManager} = require('./core/init')
+const errorHandle = require('./middlewares/error-handler')
+const app = new koa()
+// 解决跨域问题
+app.use(cors({
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD', 'OPTIONS']
+})) 
+// 解析post请求参数  
+app.use(parser())
+app.use(json())
+app.use(errorHandle)
+InitManager.initCore(app)
 
 module.exports = app;

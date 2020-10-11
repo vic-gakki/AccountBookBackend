@@ -4,7 +4,7 @@ module.exports = {
     port: 3306,
     user: 'root',
     password: 'gakki',
-    database: 'vue-element-admin'
+    database: 'accountbook'
   },
   token: {
     key: 'aragakiyui',

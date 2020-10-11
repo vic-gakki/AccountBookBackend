@@ -4,7 +4,8 @@ const {
 } = require('../../service/user')
 const {
   UserValidator,
-  RegisterValidator
+  RegisterValidator,
+  UserUpdateValidator
 } = require('../../validator/validator')
 const {
   Success
@@ -12,13 +13,23 @@ const {
 const {
   Auth
 } = require('../../../middlewares/auth')
+const {
+  userLevel
+} = require('../../../core/enum')
 const router = new Router({
   prefix: '/v1/user'
 })
 router.post('/register', async (ctx, next) => {
   const v = await new RegisterValidator().validate(ctx)
+  console.log(v.get('body.username'))
   const res = await UserService.createUser(v.get('body.username'), v.get('body.password'))
   throw new Success({}, '注册成功')
+})
+router.post('/updatePass', new Auth().m, async (ctx, next) => {
+  const v = await new UserUpdateValidator().validate(ctx)
+  console.log(v.get('body.username'))
+  const res = await UserService.updatePass(ctx.auth.uid, v.get("body.oldPassword"), v.get('body.newPassword'))
+  throw new Success({}, '修改成功')
 })
 router.post('/login', async (ctx, next) => {
   const v = await new UserValidator().validate(ctx)
@@ -27,10 +38,16 @@ router.post('/login', async (ctx, next) => {
     token
   }, '登录成功')
 })
-router.get('/info', new Auth().m, async (ctx, next) => {
+router.post('/info', new Auth().m, async (ctx, next) => {
+  const user = await UserService.findUser(ctx.auth.uid)
   throw new Success({
-    roles: ['admin']
+    roles: [userLevel[user.role]],
+    name: user.nickname
   }, '获取用户角色：ok')
+})
+router.post('/logout', new Auth().m, async (ctx, next) => {
+  throw new Success({
+  }, '登出成功')
 })
 
 module.exports = router

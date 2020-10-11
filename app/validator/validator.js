@@ -15,15 +15,37 @@ class UserValidator extends LinValidator{
       })
     ]
     this.password = [
-      new Rule('isLength', '密码在6-32位字符之间', {
-        min: 6,
-        max: 32
+      new Rule('isLength', '密码不能为空', {
+        min: 1
       }),
-      new Rule('matches', '密码强度过弱，需要包含字母，数字和特殊字符中的两种', /^(?![a-zA-Z]+$)(?!\d+$)(?![!@#$%^%&*_]+$)[a-zA-Z\d!@#$%^&*_]+$/)
+      // 校验密码强度，用于注册
+      // new Rule('matches', '密码强度过弱，需要包含字母，数字和特殊字符中的两种', /^(?![a-zA-Z]+$)(?!\d+$)(?![!@#$%^%&*_]+$)[a-zA-Z\d!@#$%^&*_]+$/)
     ]
   }
 }
-
+class UserUpdateValidator extends LinValidator {
+  constructor(){
+    super()
+    this.oldPassword = [
+      new Rule('isLength', '原始密码不能为空', {
+        min: 1
+      })
+    ]
+    this.newPassword = [
+      new Rule('isLength', '密码不能为空', {
+        min: 1
+      }),
+      new Rule('matches', '密码强度过弱，需要包含字母，数字和特殊字符中的两种', /^(?![a-zA-Z]+$)(?!\d+$)(?![!@#$%^%&*_]+$)[a-zA-Z\d!@#$%^&*_]+$/)
+    ]
+    this.confirmpassword = this.newPassword
+    
+  }
+  validateConfirm(ctx){
+    if(ctx.body.newPassword !== ctx.body.confirmpassword){
+      throw new Error('两次密码不一致')
+    }
+  }
+}
 class RegisterValidator extends UserValidator{
   constructor(){
     super()
@@ -37,7 +59,7 @@ class RegisterValidator extends UserValidator{
   async validateExsit(ctx){
     const user = await User.findOne({
       where: {
-        nickname: ctx.body.nickname
+        nickname: ctx.body.username
       }
     })
     if(user){
@@ -47,5 +69,6 @@ class RegisterValidator extends UserValidator{
 }
 module.exports = {
   UserValidator,
-  RegisterValidator
+  RegisterValidator,
+  UserUpdateValidator
 }

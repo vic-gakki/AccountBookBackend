@@ -23,11 +23,22 @@ class User extends Model{
     if(!user){
       throw new NotFound('账户不存在')
     }
-    const isPwdRight = Bcrypt.compareSync(password, user.password)
+    this.validatePass(password, user.password)
+    return user
+  }
+  static async findUser(id){
+    const user = await this.findOne({
+      where: {
+        id
+      }
+    })
+    return user
+  }
+  static validatePass(passin, exsit){
+    const isPwdRight = Bcrypt.compareSync(passin, exsit)
     if(!isPwdRight){
       throw new AuthFail('密码不正确')
     }
-    return user
   }
 }
 User.init({
@@ -41,7 +52,12 @@ User.init({
       val = Bcrypt.hashSync(val, salt)
       this.setDataValue('password', val)
     }
-  }
+  },
+  role: {
+    type: DataTypes.INTEGER                     ,
+    allowNull: true,
+    defaultValue: 8
+  },
 }, {
   sequelize
 })

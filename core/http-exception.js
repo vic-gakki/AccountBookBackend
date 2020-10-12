@@ -22,7 +22,7 @@ class AuthFail extends HttpException {
   }
 }
 class Success extends HttpException {
-  constructor(data, errorMessage = '成功', errorCode = 0, statusCode = 200){
+  constructor(data = {}, errorMessage = '操作成功', errorCode = 0, statusCode = 200){
     super(errorMessage, errorCode, statusCode)
     this.data = data
   }

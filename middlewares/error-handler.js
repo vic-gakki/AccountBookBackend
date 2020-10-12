@@ -1,10 +1,11 @@
 const {HttpException, Success} = require('../core/http-exception')
+const isDev = process.env.NODE_ENV === 'development'
 async function errorHandle (ctx, next){
   try{
     await next()
   }catch(e){
     let res = {
-      msg: '啊哦~服务器跑向远方了~',
+      msg: isDev ? e : `啊哦~服务器跑向远方了~`,
       errorCode: 999
     }, statusCode = 500
     if(e instanceof HttpException){

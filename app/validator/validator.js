@@ -6,6 +6,14 @@ const {
   User
 } = require('../model/user')
 
+class NameValidator extends LinValidator {
+  constructor(field){
+    super()
+    this[field] = [
+      new Rule('isLength', `${field}不能为空`, {min: 1})
+    ]
+  }
+}
 class UserValidator extends LinValidator{
   constructor(){
     super()
@@ -70,5 +78,6 @@ class RegisterValidator extends UserValidator{
 module.exports = {
   UserValidator,
   RegisterValidator,
-  UserUpdateValidator
+  UserUpdateValidator,
+  NameValidator,
 }

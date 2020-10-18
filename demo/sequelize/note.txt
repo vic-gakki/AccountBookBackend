@@ -1,0 +1,94 @@
+1. 列默认值为NULL， 设置默认[defaultValue]
+    内置默认值  Sequelize.NOW
+              Sequelize.UUIDV4 / UUIDV1 
+
+2. save method of model instance only update fields that really changed
+
+3. 使用聚合函数时,必须为它提供一个别名,以便能够从模型中访问它.
+
+4. 销毁所有内容
+  await User.destroy({
+    truncate: true
+  });
+
+5. 批量创建 Model.bulkCreate(parmas: Array, options: Object)
+    不会运行模型定义的字段验证【create方法会验证】，options.validate = true 开启强制验证，会降低性能
+    options.fields = []，定义需要插入的列，其他将会被忽略
+
+6. 默认情况下，finder方法的结果都是模型类的实例【sequelize在获取结果的后自动包装】，当结果太多时会导致效率低下，可以将{raw: true}作为参数传递给finder方法禁用包装
+
+7. 虚拟字段定义：DataTypes.VIRTUAL,不存在数据库中
+
+8. Model-wide validator，用于在特定字段验证器之后检查模型   Model.init(definition, options: {validate: {...}})
+
+9. 关联
+
+    以下四种方式定义关联，调用方为 源source model， 参数方为 目标target model
+        A.hasOne(B)：A B之间定义一对一关系，外键在B model
+        A.belongsTo(B): A B之间定义一对一关系，外键在A model
+        A.hasMany(B)：A B之间定义一对多关系，外键在B model
+        A.belongsToMany(B, {through: 'c'}): A B之间定义多对多关系，使用C作为中间表，有aId和bId外键
+
+        源source model上将添加一些特殊方法和混入方法
+        hasOne | belongsTo          ---> set get create 
+        hasMany | belongsToMany     ---> sets gets create counts add(s) has(s) remove(s)
+
+
+    创建关联时，多成对出现
+        1 - 1：hasOne and belongsTo are used together
+        1 - n：hasMany and belongsTo are used together
+        n - m：two belongsToMany calls are used together
+
+    创建关联时，options
+        onDelete 和 onUpdate配置
+            可选值：RESTRICT | SET NULL | NO ACTION | CASCADE | SET DEFAULT
+            1：1 | 1：m 关系的默认配置为 onDelete: SET NULL + onUpdate: CASCADE
+            n：m 关系的默认配置为 onDelete 和 onUpdate: CASCADE
+        自定义外键：foreignKey
+            可以是string | object，为对象时，可以像定义列一样定义行为，name为列名
+
+    Eager loading：立即获取所有                         findOne()
+    lazy loading：在需要时才获取关联数据                  findOne({include:xxx}) 
+
+        include：{momdel： xxx, required: true} ---> 通过设置required：true将outer join 转变为 inner join   ---> 只返回有关联模型记录的数据
+        当include中包含where选项时，sequelize自动将required设置为true   ---> where选项将会添加到inner join的 on clause中
+        在include的where选项中引用关联模型中的值【refer to other model column】 --->  使用 sequelize.col('model.column')
+        top-level where clause involving nested column --->  '$nestedModel.column$'
+
+        eager loading with n:m relationships
+            the eager loaded associated model instance will have an extra prop with junction model name
+            by default, all columns in junction table will be fetched   
+                ---> include: {model: xxx, attributes: []} to get nothing from junction table
+                ---> include: {model: xxx, through: {attributes: [...]}} to select attributes in junction table
+
+
+    关联别名 & 自定义外键
+        当设置了目标model的别名【{as: 'xx'}】后，外键名生成格式为：别名+id，此时inclue选项提供关联model时，不能是model对象，必须为别名或一个{model：xxx, as: 'xx'}的对象，关联方法格式为 get|set + 别名
+        好处：当需要在两个model之间定义两个关联时，特别有用
+            mail 和 person
+                Mail.belongsTo(Person, {as: 'sender'})
+                Mail.belongsTo(Person, {as: 'receiver'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+报错
+    1.In aggregated query without GROUP BY, expression #1 of SELECT list contains nonaggregated column 'sequelizedemo.users.name'; this is incompatible with sql_mode=only_full_group_by
+        经过查询资料和测试，当mysql的sql_mode是only_full_group_by的时候，在不使用group by并且select后面出现【聚集函数】的话，那么所有被select的都应该是聚集函数，否则就会报错

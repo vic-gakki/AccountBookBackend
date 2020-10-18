@@ -16,12 +16,16 @@ const sequelize = new Sequelize(database, user, password, {
   },
   define: {
     paranoid: true,
+    defaultScope: {
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'deleteAt']
+      }
+    },
     scopes: {
-
+      
     }
   }
 })
-sequelize.sync({foce: true})
 module.exports = {
   sequelize
 }

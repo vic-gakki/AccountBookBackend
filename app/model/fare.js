@@ -55,6 +55,7 @@ FareCategory.init({
 }, {
   sequelize
 })
+// FareCategory.sync({force: false})
 module.exports = {
   FareCategory
 }

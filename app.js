@@ -5,6 +5,8 @@ const parser = require('koa-bodyparser')
 const busboy = require('koa-busboy')
 const {InitManager} = require('./core/init')
 const errorHandle = require('./middlewares/error-handler')
+const {sequelize} = require('./core/db')
+sequelize.sync({alter: true})
 const app = new koa()
 // 解决跨域问题
 app.use(cors()) 

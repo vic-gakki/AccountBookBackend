@@ -4,8 +4,9 @@ async function errorHandle (ctx, next){
   try{
     await next()
   }catch(e){
+    console.log(e)
     let res = {
-      msg: isDev ? e : `啊哦~服务器跑向远方了~`,
+      msg: isDev ? e.message : `啊哦~服务器跑向远方了~`,
       errorCode: 999
     }, statusCode = 500
     if(e instanceof HttpException){

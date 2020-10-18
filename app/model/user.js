@@ -26,12 +26,9 @@ class User extends Model{
     this.validatePass(password, user.password)
     return user
   }
-  static async findUser(id){
-    const user = await this.findOne({
-      where: {
-        id
-      }
-    })
+  static async findUser(condition, type){
+    type = type.slice(0, 1).toUpperCase() + type.slice(1)
+    const user = await this['find' + type](condition)
     return user
   }
   static validatePass(passin, exsit){

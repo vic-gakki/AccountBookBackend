@@ -3,7 +3,7 @@ const {
   FareCategory
 } = require('../../model/fare')
 const {
-  NameValidator
+  NameValidator,
 } = require('../../validator/validator')
 const {
   Success

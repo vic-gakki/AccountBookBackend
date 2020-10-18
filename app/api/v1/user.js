@@ -2,6 +2,7 @@ const Router = require('koa-router')
 const {
   UserService
 } = require('../../service/user')
+const { Op } = require("sequelize");
 const {
   UserValidator,
   RegisterValidator,
@@ -39,11 +40,21 @@ router.post('/login', async (ctx, next) => {
   }, '登录成功')
 })
 router.post('/info', new Auth().m, async (ctx, next) => {
-  const user = await UserService.findUser(ctx.auth.uid)
+  const user = await UserService.findUser({where: {id: ctx.auth.uid}}, 'one')
   throw new Success({
     roles: [userLevel[user.role]],
     name: user.nickname
   }, '获取用户角色：ok')
+})
+router.post('/list', new Auth().m, async (ctx, next) => {
+  const users = await UserService.findUser({ where: {
+    id: {
+      [Op.not]: ctx.auth.uid
+    }
+  }, attributes: ['id', ['nickname', 'name']]}, 'all')
+  throw new Success({
+    list: users
+  }, '获取用户列表成功')
 })
 router.post('/logout', new Auth().m, async (ctx, next) => {
   throw new Success({

@@ -75,9 +75,28 @@ class RegisterValidator extends UserValidator{
     }
   }
 }
+class PostFareValidator extends LinValidator {
+  constructor(){
+    super()
+
+    this.payTime = [new Rule('isLength', '费用支出时间不能为空', {
+      min: 1
+    })]
+    this.fareCategoryId = [new Rule('isLength', '费用类别不能为空', {
+      min: 1
+    })]
+    this.memberInvolve = [new Rule('isLength', '相关人员不能为空', {
+      min: 1
+    })]
+    this.fareAmount = [new Rule('isLength', '支出费用不能为空', {
+      min: 1
+    })]
+  }
+}
 module.exports = {
   UserValidator,
   RegisterValidator,
   UserUpdateValidator,
   NameValidator,
+  PostFareValidator
 }

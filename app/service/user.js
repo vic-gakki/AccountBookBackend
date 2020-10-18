@@ -16,14 +16,14 @@ class UserService {
     return generateToken(user.id, userLevel.NORMAL_USER)
   }
   static async updatePass(id, old, password){
-    const user = await User.findUser(id)
+    const user = await User.findUser({where: {id}}, 'one')
     User.validatePass(old, user.password)
     await user.update({
       password
     })
   }
-  static async findUser(id){
-    return await User.findUser(id)
+  static async findUser(condition, type){
+    return await User.findUser(condition, type)
   }
 }
 module.exports = {
